@@ -1,0 +1,133 @@
+'use strict';
+/*
+ * Document   : mc.config.js
+ * Created on : 31/08/2013, 13:45:00
+ * Author     : Luciano Ganga
+ * $Revision: 5714 $
+ * $LastChangedDate: 2016-05-20 18:34:08 -0300 (Fri, 20 May 2016) $
+ * $LastChangedBy: aherrera $
+ * Description:
+ *      Contains the custom parameters to set the App
+ */
+define('dfMc_customConfig',
+	function(require, exports, amdModule) {
+		var basePath = amdModule.config().basePath.replace(/\/$/, '');
+
+		var chartsColors = [
+			'#F29400', // Naranja
+			'#F10000', // rojo
+			'#FAEC37', // Amarillo
+			'#90E24A' // Verde
+		];
+
+		return {
+			coreParams: function() {
+				return ({
+					// lang: 'es',
+					// location: 'LA',
+					// teamLogosPath: basePath + '/escudos', // var teamLogosPath: (string) - Path hasta la carpeta de escudos
+					// teamLogosExtension: 'gif', // var teamLogosExtension: (string) - Determina la extensiÃƒÂ³n predeterminada de los escudos. Es reemplazado por el valor en la configuracion del JSON de cada ficha
+appUrl: "https://www.elheraldo.co/resultados/html/v3/htmlCenter", // URL hasta el directorio "htmlCenter" correspondiente a la App
+iframesUrl: "https://www.elheraldo.co/resultados/html/v3/", // URL hasta el directorio donde estÃƒÂ¡n los archivos HTML que permiten hacer iframe de la App
+					// gamecastURL: 'http://www.elheraldo.co/resultados/html/v3/%%TOURNAMENT%%/%%EVENT_NO%%/', // URL donde se encuentra el GameCast completo. Puedo usar en la URL las siguientes variables: %%EVENT_TYPE%%, %%EVENT_CATEGORY%%, %%TOURNAMENT%%, %%EVENT_NO%%, %%THEME%% (este ultimo incluye el nombre del parametro al ser reemplazado)
+					// gamecastURL: 'index.html?channel=%%CHANNEL%%&lang=%%LANG%%%%THEME%%' // URL donde se encuentra el GameCast completo. Puedo usar en la URL las siguientes variables: %%EVENT_TYPE%%, %%EVENT_CATEGORY%%, %%TOURNAMENT%%, %%EVENT_NO%%, %%THEME%% (este ÃƒÂºltimo incluye el nombre del parÃƒÂ¡metro al ser reemplazado)
+					// Social Networks
+					GMTtype: 'user',
+					chartsColors: chartsColors,
+					/***********************************
+						PERSONALIZACIÃƒÆ’Ã¢â‚¬Å“N DEL GAMECAST
+					************************************/
+
+					gamecastURL: 'https://www.elheraldo.co/deportes/resultados-futbol?channel=%%CHANNEL%%&tournament=%%TOURNAMENT%%',
+					customNavigation: true,
+
+					agendaMaM: {
+						deportes: {
+							todos: {
+								todos: {
+									detailsLinkTarget: '_top'//'_top'
+								}
+							}
+						}
+					},
+
+					/*******************************************
+						TERMINA PERSONALIZACIÃƒÆ’Ã¢â‚¬Å“N DEL GAMECAST
+					********************************************/
+					socialNetworks: {
+						facebook: {
+							active: false
+								//appId: 'FACEBOOK_APP_ID' // APP ID otorgado por facebook para realizar el facebook.connect
+						}
+					}
+				});
+			},
+			pagesParams: function(eventType, eventCategory, page) {
+				var settings = {
+					deportes: {
+						todos: {},
+						futbol: {
+							fixture: {
+								detailsLinkTarget: '_parent' // ParÃƒÆ’Ã‚Â¡metros: '_self' (Opens the linked document in the same frame as it was clicked - this is default) |'_blank' (Opens the linked document in a new window or tab) | '_parent' (Opens the linked document in the parent frame) | '_top' (Opens the linked document in the full body of the window) 								
+								}
+						},
+						rugby: {},
+						automovilismo: {}
+					},
+					horoscopo: {},
+					loteria: {},
+					transito: {}
+				};
+				return settings[eventType][eventCategory][page];
+			},
+			eventsParams: function(channel) {
+				var settings = {};
+				// Settings particulares para canales de la forma 'deportes.futbol.*'
+				if (channel.match(/^deportes\.futbol\..*/)) {
+					settings.format = {
+						statusFormat: 'full',
+						timeFormat: 'reboot', // 'reboot' reinicia el contador de minutos al finalizar cada tiempo. 'continuous' mantiene el contador
+						displayAditionalTime: true,
+						showApartAditionalTime: true,
+						minutesRounding: 'ceiling'
+					};
+				}
+				return settings;
+			},
+			modulesParams: function(eventType, eventCategory, module) {
+				var settings = {
+					deportes: {
+						futbol: {
+							itemMaM: {
+									detailsURL: _dfMc.settings.get('gamecastURL') // Puedo usar en la URL: %%EVENT_TYPE%%, %%EVENT_CATEGORY%%, %%TOURNAMENT%%, %%EVENT_NO%%
+							},
+							commentary: {
+								useTextsFrom: 'both' // Options: both | default | custom
+							},
+							heatMap: {
+								//colorForEmptySquare: 'rgba(0, 0, 0, 0.4)',
+								// colors: [
+								// 	'#74AA17', // Verde
+								// 	'#c3c716', // Verde
+								// 	'#FFE000', // Amarillo
+								// 	'#f7b118', // Amarillo
+								// 	'#FF7C06', // Naranja
+								// 	'#DB3E03', // Naranja
+								// 	'#B70000' // Rojo
+								// ]
+							},
+							leaders: {
+								//barsQty: 5
+							},
+							teamComparison: {
+								chartsColors: chartsColors
+							}
+
+						}
+					}
+				};
+				return settings[eventType][eventCategory][module];
+			}
+		};
+	}
+);

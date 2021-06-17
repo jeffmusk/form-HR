@@ -1,0 +1,11 @@
+window.googletag = window.googletag || {
+    cmd: []
+};
+
+googletag.cmd.push(function() {
+    
+    // code ...
+
+    googletag.pubads().enableSingleRequest();
+    googletag.enableServices();
+});

@@ -1,0 +1,66 @@
+function PianoLogin() {
+    tp = window["tp"] || [];
+    tp.push(['init', function() {
+        if (!tp.user.isUserValid()) {
+            console.log('login');
+            tp = window.tp || [];
+            tp.push(["init", function () {
+                tp.pianoId.show({
+                    disableSignUp: false,
+                    displayMode: 'modal',
+                    screen: 'login',
+                    containerSelector: '#login-form',
+                    loggedIn: function (data) {
+                        console.log('user ', data.user, ' logged in with token', data.token);
+                        $('.content_mod_usuario').removeClass('log-out');
+                        $('.content_mod_usuario').addClass('log-in');
+                        $('.content_mod_usuario .text-user').text('MI CUENTA');
+                        $('.content_mod_usuario .icon-user').text(data.user.firstName.charAt(0) + data.user.lastName.charAt(0));
+
+                        $.ajax({
+                            url: '/ajax__soy_suscriptor.php',
+                            type: 'POST',
+                            data: {
+                                caso: 'ocultar_barra',
+                                uid: tp.pianoId.getUser().uid
+                            },
+                            success: function(data) {
+                                if ( data == "ocultar_barra" ) {
+                                    $('#header-new > div.inferior.suscripcion').remove();
+                                    $('#menu-login > li:nth-child(2)').remove();
+                                } else if ( data == "mostrar_barra" ) {
+                                    $('#header-new > div.inferior.suscripcion').show();
+                                }
+                            },
+                            error: function(jqXHR, exception) {
+                                console.log('status: ' + jqXHR.status);
+                                console.log('exception: ' + exception);
+                            }
+                        });
+                    },
+                    loggedOut: function () {
+                        console.log('user logged out');
+                    }
+                });
+            }]);
+        } else {
+            var menuOpen = $('#menu-login').hasClass('active');
+
+            if ( menuOpen === true ) {
+                $('#menu-login').removeClass('active');
+            } else {
+                $('#menu-login').addClass('active');
+            }
+        }
+    }]);
+}
+
+function PianoLogout() {
+    console.log('logout');
+    tp.push(["init", function () {
+        console.log('logout');
+        tp = window.tp || [];
+        tp.pianoId.logout();
+        location.reload();
+    }]);
+}

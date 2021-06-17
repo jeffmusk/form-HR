@@ -1,0 +1,268 @@
+$(document).ready(function() {
+    $("#guardar-btn").click(function() {
+        $.ajax({
+                async: false,
+                url: "/alertas-eh/funciones-alertas",
+                data: parametro,
+                type: "POST",
+                success: function(res) {
+                    console.log("correcto");
+                },
+                error: function(jqXHR, exception) {
+                    console.log('status: ' + jqXHR.status);
+                    console.log('exception: ' + exception);
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                console.log('jqXHR ' + jqXHR);
+                console.log('textStatus ' + textStatus);
+                console.log('errorThrown ' + errorThrown);
+            });
+    });
+
+    $(".sitios").click(function() {
+        a = $(this).val();
+        var selected = $("input[type='radio'][name='visi']:checked").val();
+        if (selected == 2) {
+            $("#tag-seccion-" + a).toggleClass("active");
+        }
+    });
+
+    $(".radio_visi").click(function() {
+        aa = $("input[type='radio'][name='visi']:checked").val();
+        if (aa == 2) {
+            $(".sitios-div").each(function() {
+                sitio = $(this).attr("data-sitio");
+                con = $("#nom-sitio-" + sitio + ":checked").length;
+                if (con == 1) {
+                    $("#tag-seccion-" + sitio).addClass("active");
+                } else {
+                    $("#tag-seccion-" + sitio).removeClass("active");
+                }
+            });
+        } else {
+            $(".select-multiple").val("");
+            $(".tag-seccion-multiple").removeClass("active");
+        }
+    });
+
+    $(".sitios-div").each(function() {
+        sitio = $(this).attr("data-sitio");
+        con = $("#nom-sitio-" + sitio + ":checked").length;
+        if (con == 1) {
+            $("#tag-seccion-" + sitio).addClass("active");
+        } else {
+            $("#tag-seccion-" + sitio).removeClass("active");
+        }
+    });
+
+    $("#previsualizar-btn").click(function() {
+        if ($("#imagen-div figure img").attr("src")) {
+            $('#ale-prev-img').attr("src", $("#imagen-div figure img").attr("src"));
+        }
+        img_aler = $('#ale-prev-img').attr("src");
+        text_aler = $("#alerta").val();
+        url_aler = $("#url").val();
+        if (text_aler == "") {
+            $("#previsualizar-mensaje").text("Escriba un mensaje valido");
+            $("#previsualizar-mensaje").addClass("active");
+        } else if (url_aler == "") {
+            $("#previsualizar-mensaje").text("Escriba una url valida");
+            $("#previsualizar-mensaje").addClass("active");
+        } else if (img_aler == "") {
+            $("#previsualizar-mensaje").text("Seleccione un icono valido");
+            $("#previsualizar-mensaje").addClass("active");
+        } else {
+            $("#alertas-previ .alertas-eh figcaption").text(text_aler);
+            $("#alertas-previ .alertas-eh a").attr("href", url_aler);
+            $("#alertas-previ").addClass("active");
+            $("#previsualizar-mensaje").removeClass("active");
+        }
+    });
+
+    $(".modificar-btn").click(function() {
+        $("#imagen").addClass("active");
+        $(this).removeClass("active");
+    });
+
+    window.setTimeout(function() {
+        var pathname = window.location.pathname;
+        if (pathname != "/alertas-eh/insert-alertas" && pathname != "/alertas-eh/" && pathname != "/alertas-eh/funciones-alertas") {
+
+            var tipo_alerta = "";
+            var con_alerta = "";
+
+            $(".alerta-eh").each(function() {
+                tipo_alerta = $(this).attr('data-alertas');
+                con_alerta++;
+            });
+
+            var alerta = "";
+            var sw = 0;
+            var sw2 = 0;
+            var cookies = "";
+            var frecuencia = "";
+            var nameEQ = "";
+            var con = 0;
+            var cokie_alerta = "";
+            var selector = 0;
+            var con_cookies2 = 0;
+            var con_con = 0;
+            var ca = document.cookie.split(';');
+
+            if (tipo_alerta == "segmentada") {
+                nameEQ = "alertas_eh_seg=";
+            } else {
+                nameEQ = "alertas_eh=";
+            }
+
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) {
+                    alerta = decodeURIComponent(c.substring(nameEQ.length, c.length));
+                    cookies = alerta.split("-");
+                    sw = 1;
+                }
+            }
+
+            var d = new Date();
+            d.setTime(d.getTime() + (1 * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toUTCString();
+
+            if (sw == 0) {
+                $(".alerta-eh").each(function() {
+                    con++;
+                    if (con == 1) {
+                        con_con = parseInt($(this).attr('data-fec')) - 1;
+                        frecuencia += con_con + "-";
+                    } else {
+                        frecuencia += $(this).attr('data-fec') + "-";
+                    }
+                });
+
+                $("#alertas1").removeClass("inactive");
+                $("#alertas1").addClass("active");
+
+                document.cookie = nameEQ + con + "-1-" + frecuencia + "i; " + expires;
+                cokie_alerta = con + "-1-" + frecuencia + "i";
+            } else {
+                selector = (parseInt(cookies[1]) + 2);
+                con_cookies2 = (cookies.length - 1);
+
+                if (selector < con_cookies2) {
+                    if (parseInt(cookies[selector]) > 0) {
+                        cookies[selector] = parseInt(cookies[selector]) - 1;
+                        cookies[1] = parseInt(cookies[1]) + 1;
+                        sw2 = 1;
+                    } else {
+                        sw2 = 0;
+                        while (sw2 == 0 && selector < con_cookies2) {
+                            if (parseInt(cookies[selector]) > 0) {
+                                sw2 = 1;
+                            } else {
+                                selector++;
+                            }
+                        }
+                        cookies[selector] = parseInt(cookies[selector]) - 1;
+                        cookies[1] = selector - 1;
+
+                    }
+                } else {
+                    cookies[1] = 1;
+                    selector = (parseInt(cookies[1]) + 1);
+                    while (sw2 == 0 && selector < con_cookies2) {
+                        if (parseInt(cookies[selector]) > 0) {
+                            sw2 = 1;
+                        } else {
+                            selector++;
+                        }
+                    }
+                    cookies[selector] = parseInt(cookies[selector]) - 1;
+                    cookies[1] = selector - 1;
+                    sw2 = 1;
+                }
+
+                $("#alertas" + cookies[1]).removeClass("inactive");
+                $("#alertas" + cookies[1]).addClass("active");
+
+                if (cookies[1] > 0) {
+                    // nombre = $("#alertas" + cookies[1]).attr("data-nom");
+                    url = $("#alertas" + cookies[1]).attr("data-link");
+                }
+
+                /*if (sw2 == 1) {
+                    for (i = 0; i < con_cookies2; i++) {
+                        frecuencia += cookies[i] + "-";
+                    }
+                    cokie_alerta = frecuencia + "i";
+                }*/
+                if (sw2 == 1) {
+                    if (con_alerta == cookies[0]) {
+                        for (i = 0; i < con_cookies2; i++) {
+                            frecuencia += cookies[i] + "-";
+                        }
+
+                        cokie_alerta = frecuencia + "i";
+                    } else {
+                        $(".alerta-eh").each(function() {
+                            con++;
+                            if (con == 1) {
+                                con_con = parseInt($(this).attr('data-fec')) - 1;
+                                frecuencia += con_con + "-";
+                            } else {
+                                frecuencia += $(this).attr('data-fec') + "-";
+                            }
+                        });
+
+                        $("#alertas1").removeClass("inactive");
+                        $("#alertas1").addClass("active");
+
+                        cokie_alerta = con + "-1-" + frecuencia + "i";
+                    }
+                }
+
+                document.cookie = nameEQ + cokie_alerta + "; " + expires;
+            }
+        }
+
+        $(".alerta-eh.active").click(function() {
+            nombre = $(this).attr("data-nom");
+            url = $(this).attr("data-link");
+            ga('send', 'event', 'Alerta EH', 'Clic', nombre, {
+                nonInteraction: true
+            });
+            window.open(url, '_blank');
+        });
+    }, 1000);
+});
+
+function addImage(e) {
+    var file = e.target.files[0],
+        imageType = /image.*/;
+
+    if (!file.type.match(imageType))
+        return;
+
+    var reader = new FileReader();
+    reader.onload = fileOnload;
+    reader.readAsDataURL(file);
+}
+
+function fileOnload(e) {
+    var result = e.target.result;
+    $('#ale-prev-img').attr("src", result);
+}
+
+window.onmousedown = function(e) {
+    var el = e.target;
+    if (el.tagName.toLowerCase() == 'option' && el.parentNode.hasAttribute('multiple')) {
+        e.preventDefault();
+        // toggle selection
+        if (el.hasAttribute('selected')) el.removeAttribute('selected');
+        else el.setAttribute('selected', '');
+        // hack to correct buggy behavior
+        var select = el.parentNode.cloneNode(true);
+        el.parentNode.parentNode.replaceChild(select, el.parentNode);
+    }
+}
